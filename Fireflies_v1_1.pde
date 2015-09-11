@@ -5,7 +5,6 @@ PGraphicsOpenGL pgl;
 PGL gl;
 int[] values;
 float angle = 0;
-float xoff = 0.002;  
 boolean paused = true;
 boolean showGlow = true;
 int zoomDistance = -10;
@@ -13,7 +12,7 @@ boolean stopMovement = true;
 int maximumSignalDistance = 200;
 boolean drawAxis = true;
 boolean drawLines = false;
-flockObject[] theFlock;
+FlockObject[] theFlock;
 PImage b, c, body; 
 
 int flockSize = 150;
@@ -26,41 +25,31 @@ int flockSize = 150;
 void setup() {
   size(700, 700, OPENGL);
   values = new int[width];
-  theFlock = new flockObject[flockSize];
+  theFlock = new FlockObject[flockSize];
   b = loadImage("blur2.png");
   c = loadImage("blur4.png");
   body = loadImage("firebody.png");
   frameRate(45);
 
   for (int p=0; p < theFlock.length; p++) {
-    theFlock[p] = new flockObject(random(0.01, 1), str(p)); 
+    theFlock[p] = new FlockObject(random(0.01, 1), str(p)); 
   }
 }
 
 void draw() {
-  background(0);
-  pgl = (PGraphicsOpenGL) g;   // g may change
-  gl = pgl.beginPGL();         // ho ho fancy
-  gl.disable(PGL.DEPTH_TEST);
-  gl.enable(PGL.BLEND);
-  gl.blendFunc(PGL.SRC_ALPHA, PGL.ONE);
-  
-  // Rotate around the center axis
-  camera(width / 2, height / 2, 1200, width/2.0, height/2.0, 450, 0, 1, 0);
-    
-  if (paused == false) {
-    angle += 0.05;
-    if (angle > TWO_PI) { 
-      angle = 0; 
-      paused = true;
-    }
+  setupEnvironment();
+  tick();
+  tearDownEnvironment();
+}
 
+private void tick() {
+  for (int p = 0; p < theFlock.length; p++) {
+    theFlock[p].tick();
   }
-  translate(width/2, 0, zoomDistance);
-  rotateY(angle);
-  translate(-width/2, 0, zoomDistance);
-  
-  if (drawAxis) {
+}
+
+private void drawAxes() {  
+  if (drawAxis) {    
     stroke(75);
     line(0, 0, height , 0);
     line(0, height, 0, 0, height, height);
@@ -75,24 +64,39 @@ void draw() {
     }
     stroke(0);
   }
-      
-  for (int p = 0; p < theFlock.length; p++) {
-    theFlock[p].tick();
-  }
+}
+
+private void setupEnvironment() {
+  background(0);
+  pgl = (PGraphicsOpenGL) g;   
+  gl = pgl.beginPGL();         
+  gl.disable(PGL.DEPTH_TEST);
+  gl.enable(PGL.BLEND);
+  gl.blendFunc(PGL.SRC_ALPHA, PGL.ONE);
   
-  if (drawLines) {
-    for (int l = 1; l < theFlock.length; l++) {
-      stroke(80);
-      line(theFlock[l-1].getPosX(), theFlock[l-1].getPosY(), theFlock[l-1].getPosZ(), theFlock[l].getPosX(), theFlock[l].getPosY(), theFlock[l].getPosZ());
-      noStroke();
+  // Rotate around the center axis
+  camera(width / 2, height / 2, 1200, width/2.0, height/2.0, 450, 0, 1, 0); 
+  
+  if (paused == false) {
+    angle += 0.05;
+    if (angle > TWO_PI) { 
+      angle = 0; 
+      paused = true;
     }
   }
+  translate(width/2, 0, zoomDistance);
+  rotateY(angle);
+  translate(-width/2, 0, zoomDistance);
+  
+  drawAxes();
+}
+
+private void tearDownEnvironment() {
+  
   pgl.beginPGL();
   gl.depthMask(true);
   gl.blendFunc(PGL.SRC_ALPHA, PGL.ONE_MINUS_SRC_ALPHA);
-  pgl.endPGL();
-  
-  //saveFrame("frames/check####.png");
+  pgl.endPGL();  
 }
 
 void keyPressed() {
@@ -125,33 +129,31 @@ public void signal(int posX, int posY, int posZ, float alphaValue) {
   }    
 }
 
-private class flockObject {    
-  int positionX;
-  int positionY;
-  int positionZ;
+private class FlockObject {
+
+  private int alphaValue;  
+  private int positionX;
+  private int positionY;
+  private int positionZ;
+  private int newpositionX;
+  private int newpositionY;
+  private int newpositionZ;
+  private int size;
   
-  int newpositionX;
-  int newpositionY;
-  int newpositionZ;   
+  private float alphaDifference;
+  private float flockxoff;
+  private float flockyoff;
+  private float flockzoff;
+  private float resettingStrength; 
+   
+  private boolean isGlowing;
+   
+  private String name;
   
-  float flockxoff;
-  float flockyoff;
-  float flockzoff;
-   
-  float alphaDifference;
-   
-  int alphaValue;
-   
-  boolean isGlowing;
-   
-  float resettingStrength;
-  String name;
-  int textureWidth;
- 
-  public flockObject(float offset, String name) {
+  public FlockObject(float offset, String name) {
     resettingStrength = 0.12;
     this.name = name;
-    textureWidth = int(random(5, 55));
+    size = int(random(5, 55));
     flockxoff = random(offset*.4, offset * 5.8);
     flockyoff = random(offset*.4, offset * 1.8);
     flockzoff = random(offset*.4, offset * 19.8);
@@ -169,7 +171,7 @@ private class flockObject {
     return positionX;
   }
   
-  int distanceAway(int otherPosX, int otherPosY, int otherPosZ) {
+  public int distanceAway(int otherPosX, int otherPosY, int otherPosZ) {
     int dX = positionX - otherPosX;
     int dY = positionY - otherPosY;
     int dZ = positionZ - otherPosZ;
@@ -227,25 +229,25 @@ private class flockObject {
   }
   
   private void drawBody() {
-    int compensateZ = (int) (textureWidth * sin(angle));
-    int compensateX = (int) (textureWidth * sin(angle + (PI / 2)));
+    int compensateZ = (int) (size * sin(angle));
+    int compensateX = (int) (size * sin(angle + (PI / 2)));
     
     beginShape();
     tint(192, alphaValue);
     texture(b);
-    vertex(- compensateX, -textureWidth, -compensateZ, 0, 0);
-    vertex(compensateX, -textureWidth, compensateZ, 200, 0);
-    vertex(compensateX, textureWidth, compensateZ, 200, 200);
-    vertex(-compensateX, textureWidth, - compensateZ, 0, 200);
+    vertex(- compensateX, -size, -compensateZ, 0, 0);
+    vertex(compensateX, -size, compensateZ, 200, 0);
+    vertex(compensateX, size, compensateZ, 200, 200);
+    vertex(-compensateX, size, - compensateZ, 0, 200);
     endShape();
     
     noTint();   
     beginShape();
     texture(body);
-    vertex(- compensateX, -textureWidth, -compensateZ, 0, 0);
-    vertex(compensateX, -textureWidth, compensateZ, 200, 0);
-    vertex(compensateX, textureWidth, compensateZ, 200, 200);
-    vertex(-compensateX, textureWidth, - compensateZ, 0, 200);
+    vertex(- compensateX, -size, -compensateZ, 0, 0);
+    vertex(compensateX, -size, compensateZ, 200, 0);
+    vertex(compensateX, size, compensateZ, 200, 200);
+    vertex(-compensateX, size, - compensateZ, 0, 200);
     endShape();
   }
  
