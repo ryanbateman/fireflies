@@ -77,7 +77,7 @@ void draw() {
   }
       
   for (int p = 0; p < theFlock.length; p++) {
-    theFlock[p].move();
+    theFlock[p].tick();
   }
   
   if (drawLines) {
@@ -97,9 +97,6 @@ void draw() {
 
 void keyPressed() {
   if (keyCode == ENTER) {
-    if (!paused) {
-      //angle = 0; 
-    }
     paused = !paused;
   } else if (key == ' ') {
     stopMovement = !stopMovement; 
@@ -193,12 +190,29 @@ private class flockObject {
    return positionZ;
   }
  
-  public void move() {
+  public void tick() {
     translate(positionX, positionY, positionZ);
-    int compensateZ = (int) (textureWidth * sin(angle));
-    int compensateX = (int) (textureWidth * sin(angle + (PI / 2)));
-   
-    if (showGlow) {
+    drawGlow();   
+    drawBody();
+    translate(-positionX, -positionY, -positionZ);      
+    calculateNextPosition();
+  }
+  
+  private void calculateNextPosition() {
+    positionX = int(noise(flockxoff) * width);
+    positionY = int(noise(flockyoff) * width);
+    positionZ = int(noise(flockzoff) * width);
+    
+    // Adjusting these values will adjust the speed with which the flockObjects tranverse the Perlin noise map and so vary / move
+    if (stopMovement) {
+      flockxoff += 0.008;
+      flockyoff += 0.008; 
+      flockzoff += 0.008;
+    } 
+  }
+    
+  private void drawGlow() {
+   if (showGlow) {
       alphaValue = int(sin(alphaDifference) * 250);
       alphaDifference += stopMovement ? 0.2 : -0.2;
       if (alphaValue >= 249) {
@@ -209,8 +223,13 @@ private class flockObject {
       if (alphaValue == 0) {
         isGlowing = true;
       }
-    }
-       
+    } 
+  }
+  
+  private void drawBody() {
+    int compensateZ = (int) (textureWidth * sin(angle));
+    int compensateX = (int) (textureWidth * sin(angle + (PI / 2)));
+    
     beginShape();
     tint(192, alphaValue);
     texture(b);
@@ -228,24 +247,6 @@ private class flockObject {
     vertex(compensateX, textureWidth, compensateZ, 200, 200);
     vertex(-compensateX, textureWidth, - compensateZ, 0, 200);
     endShape();
-    
-    translate(-positionX, -positionY, -positionZ);      
-     
-    positionX = int(noise(flockxoff) * width);
-    positionY = int(noise(flockyoff) * width);
-    positionZ = int(noise(flockzoff) * width);
-    
-    // Adjusting these values will adjust the speed with
-    // which the flockObjects vary / move
-    // Using these values below, the general flock movement becomes more 'jerky' 
-    // as random jumps occur. Kinda reminds me of fruit flies, rather than 
-    // the stately movement of fireflies. 
-    if (stopMovement) {
-      flockxoff += 0.008;
-      flockyoff += 0.008; 
-      flockzoff += 0.008;
-    } 
-    
   }
  
 }
