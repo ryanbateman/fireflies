@@ -33,7 +33,7 @@ void setup() {
   frameRate(45);
 
   for (int p=0; p < theFlock.length; p++) {
-    theFlock[p] = new flockObject(random(0.01, 1), int(random(0, 500)), str(p)); 
+    theFlock[p] = new flockObject(random(0.01, 1), str(p)); 
   }
 }
 
@@ -153,7 +153,7 @@ private class flockObject {
   String name;
   int textureWidth;
  
-  public flockObject(float offset, int position, String name) {
+  public flockObject(float offset, String name) {
     resettingStrength = 0.12;
     this.name = name;
     textureWidth = int(random(5, 55));
