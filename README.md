@@ -4,7 +4,7 @@
 An attempt at simulating how fireflies synchronise their flashes in attempt to be better seen (from afar) as a group, using Processing.  
 
 ## Background
-Fireflies have terrible eyesight but evolution decided that a faint light attached to their butts was the best way for them to communicate their availability for sexy-times. In order to better communicate their availability for sexy times, they evolved to synchronise their faint butt flashes to when they were able to see another firefly nearby. The end result is that groups of fireflies syncrhonise in the wild, forming a larger, better light for distant fireflies to spot.  
+Fireflies have terrible eyesight but evolution decided that a faint light attached to their butts was the best way for them to communicate their availability for sexy-times. In order to better communicate their availability for sexy times, they evolved to synchronise their faint butt flashes with any fireflies nearby that they _can_ see. The end result is that groups of fireflies syncrhonise in the wild, forming a larger, better light for distant fireflies to spot.  
 
 This project was an attempt to explore what that may look like when simulated using Processing, and to identify the practicality of this simulation, using Processing.  
 
