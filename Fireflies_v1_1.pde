@@ -119,8 +119,6 @@ void keyPressed() {
     zoomDistance -= 10;
   } else if (keyCode == 38) {
     zoomDistance += 10;  
-  } else {
-    print(keyCode);
   }
 }
 
