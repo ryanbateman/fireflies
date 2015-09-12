@@ -1,5 +1,24 @@
-import processing.opengl.*;
-import javax.media.opengl.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import processing.opengl.*; 
+import javax.media.opengl.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class Fireflies_v1_1 extends PApplet {
+
+
+
 
 PGraphicsOpenGL pgl;
 PGL gl;
@@ -22,7 +41,7 @@ int flockSize = 150;
   and allows for simple rotation of the view, as
   well as the addition of boxes at the new noise value points
   */
-  void setup() {
+  public void setup() {
     size(700, 700, OPENGL);
     values = new int[width];
     theFlock = new FlockObject[flockSize];
@@ -32,11 +51,11 @@ int flockSize = 150;
     frameRate(45);
 
     for (int p=0; p < theFlock.length; p++) {
-      theFlock[p] = new FlockObject(random(0.01, 1)); 
+      theFlock[p] = new FlockObject(random(0.01f, 1), str(p)); 
     }
   }
 
-  void draw() {
+  public void draw() {
     setupEnvironment();
     tick();
     tearDownEnvironment();
@@ -75,10 +94,10 @@ int flockSize = 150;
     gl.blendFunc(PGL.SRC_ALPHA, PGL.ONE);
 
   // Rotate around the center axis
-  camera(width / 2, height / 2, 1200, width/2.0, height/2.0, 450, 0, 1, 0); 
+  camera(width / 2, height / 2, 1200, width/2.0f, height/2.0f, 450, 0, 1, 0); 
   
   if (paused == false) {
-    angle += 0.05;
+    angle += 0.05f;
     if (angle > TWO_PI) { 
       angle = 0; 
       paused = true;
@@ -99,7 +118,7 @@ private void tearDownEnvironment() {
   pgl.endPGL();  
 }
 
-void keyPressed() {
+public void keyPressed() {
   if (keyCode == ENTER) {
     paused = !paused;
   } else if (key == ' ') {
@@ -112,10 +131,10 @@ void keyPressed() {
     showGlow = !showGlow; 
   } else if (keyCode == 39) {
     // Right keycode
-    angle += 0.05;  
+    angle += 0.05f;  
   } else if (keyCode == 37) {
     // Left keycode
-    angle -= 0.05; 
+    angle -= 0.05f; 
   } else if (keyCode == 40) {
     zoomDistance -= 10;
   } else if (keyCode == 38) {
@@ -142,19 +161,22 @@ private class FlockObject {
   private float resettingStrength; 
 
   private boolean isGlowing;
+
+  private String name;
   
-  public FlockObject(float offset) {
-    resettingStrength = 0.12;
-    size = int(random(5, 55));
-    flockxoff = random(offset*.4, offset * 5.8);
-    flockyoff = random(offset*.4, offset * 1.8);
-    flockzoff = random(offset*.4, offset * 19.8);
+  public FlockObject(float offset, String name) {
+    resettingStrength = 0.12f;
+    this.name = name;
+    size = PApplet.parseInt(random(5, 55));
+    flockxoff = random(offset*.4f, offset * 5.8f);
+    flockyoff = random(offset*.4f, offset * 1.8f);
+    flockzoff = random(offset*.4f, offset * 19.8f);
     
-    position = new PVector(int(noise(flockxoff) * width),  int(noise(flockyoff) * width) , int(noise(flockzoff) * width));
+    position = new PVector(PApplet.parseInt(noise(flockxoff) * width),  PApplet.parseInt(noise(flockyoff) * width) , PApplet.parseInt(noise(flockzoff) * width));
 
     isGlowing = false;
     alphaDifference = random(0, TWO_PI);
-    alphaValue = int(250 * 0.5 * (sin(alphaDifference) + 1)); 
+    alphaValue = PApplet.parseInt(250 * 0.5f * (sin(alphaDifference) + 1)); 
   }
 
   public void receiveSignal(PVector otherPosition, float pulseValue) {
@@ -172,20 +194,20 @@ private class FlockObject {
   }
   
   private void calculateNextPosition() {
-    position.set(int(noise(flockxoff) * width),  int(noise(flockyoff) * width), int(noise(flockzoff) * width));
+    position.set(PApplet.parseInt(noise(flockxoff) * width),  PApplet.parseInt(noise(flockyoff) * width), PApplet.parseInt(noise(flockzoff) * width));
     
     // Adjusting these values will adjust the speed with which the flockObjects tranverse the Perlin noise map and so vary / move
     if (stopMovement) {
-      flockxoff += 0.008;
-      flockyoff += 0.008; 
-      flockzoff += 0.008;
+      flockxoff += 0.008f;
+      flockyoff += 0.008f; 
+      flockzoff += 0.008f;
     } 
   }
 
   private void drawGlow() {
    if (showGlow) {
-    alphaValue = int(sin(alphaDifference) * 250);
-    alphaDifference += stopMovement ? 0.2 : -0.2;
+    alphaValue = PApplet.parseInt(sin(alphaDifference) * 250);
+    alphaDifference += stopMovement ? 0.2f : -0.2f;
     if (alphaValue >= 249) {
       isGlowing = false;
       signal(position, alphaDifference);     
@@ -220,4 +242,13 @@ private void drawBody() {
   endShape();
 }
 
+}
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "Fireflies_v1_1" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
