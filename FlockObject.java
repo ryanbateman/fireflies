@@ -18,15 +18,19 @@ public abstract class FlockObject {
 
   protected boolean isGlowing;
   
-  public FlockObject(PVector position) {
+  public FlockObject() {
     resettingStrength = 0.12f;
     size = 25;
-    this.position = position;
+    position = new PVector(0, 0, 0);
     isGlowing = false;
     
     Random random = new Random();
     alphaDifference = random.nextFloat() * TWO_PI;
     alphaValue = (int) (250 * 0.5 * (PApplet.sin(alphaDifference) + 1));
+  }
+
+  public void setPosition(PVector position) {
+    this.position = position;
   }
 
   public void receiveSignal(PVector otherPosition, float pulseValue) {

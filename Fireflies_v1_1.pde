@@ -6,7 +6,6 @@ PGL gl;
 int[] values;
 float angle = 0;
 boolean paused = true;
-boolean showGlow = true;
 int zoomDistance = -10;
 boolean stopMovement = true;
 int maximumSignalDistance = 200;
@@ -32,7 +31,7 @@ int flockSize = 150;
     frameRate(45);
 
     for (int p=0; p < theFlock.length; p++) {
-      theFlock[p] = new FlockObject(random(0.01, 1)); 
+      theFlock[p] = new FireflyFlockObject(random(0.01, 1)); 
     }
   }
 
@@ -108,8 +107,6 @@ void keyPressed() {
     drawLines = !drawLines; 
   } else if (key == 'a') {
     drawAxis = !drawAxis; 
-  } else if (key == 'g') {
-    showGlow = !showGlow; 
   } else if (keyCode == 39) {
     // Right keycode
     angle += 0.05;  
@@ -129,32 +126,15 @@ public void signal(PVector position, float alphaValue) {
   }    
 }
 
-private class FlockObject {
-
-  private int alphaValue;  
-  private PVector position;
-  private int size;
+private class FireflyFlockObject extends FlockObject {
   
-  private float alphaDifference;
-  private float flockxoff;
-  private float flockyoff;
-  private float flockzoff;
-  private float resettingStrength; 
-
-  private boolean isGlowing;
-  
-  public FlockObject(float offset) {
-    resettingStrength = 0.12;
-    size = int(random(5, 55));
+  public FireflyFlockObject(float offset) {
     flockxoff = random(offset*.4, offset * 5.8);
     flockyoff = random(offset*.4, offset * 1.8);
     flockzoff = random(offset*.4, offset * 19.8);
     
-    position = new PVector(int(noise(flockxoff) * width),  int(noise(flockyoff) * width) , int(noise(flockzoff) * width));
-
-    isGlowing = false;
-    alphaDifference = random(0, TWO_PI);
-    alphaValue = int(250 * 0.5 * (sin(alphaDifference) + 1)); 
+    PVector position = new PVector(int(noise(flockxoff) * width),  int(noise(flockyoff) * width) , int(noise(flockzoff) * width));
+    setPosition(position);
   }
 
   public void receiveSignal(PVector otherPosition, float pulseValue) {
@@ -165,13 +145,12 @@ private class FlockObject {
 
   public void tick() {
     translate(position.x, position.y, position.z);
-    drawGlow();   
     drawBody();
     translate(-position.x, -position.y, -position.z);      
     calculateNextPosition();
   }
   
-  private void calculateNextPosition() {
+  public void calculateNextPosition() {
     position.set(int(noise(flockxoff) * width),  int(noise(flockyoff) * width), int(noise(flockzoff) * width));
     
     // Adjusting these values will adjust the speed with which the flockObjects tranverse the Perlin noise map and so vary / move
@@ -182,8 +161,8 @@ private class FlockObject {
     } 
   }
 
-  private void drawGlow() {
-   if (showGlow) {
+  public void drawBody() {
+ 
     alphaValue = int(sin(alphaDifference) * 250);
     alphaDifference += stopMovement ? 0.2 : -0.2;
     if (alphaValue >= 249) {
@@ -194,30 +173,27 @@ private class FlockObject {
     if (alphaValue == 0) {
       isGlowing = true;
     }
-  } 
-}
 
-private void drawBody() {
-  int compensateZ = (int) (size * sin(angle));
-  int compensateX = (int) (size * sin(angle + (PI / 2)));
+    int compensateZ = (int) (size * sin(angle));
+    int compensateX = (int) (size * sin(angle + (PI / 2)));
 
-  beginShape();
-  tint(192, alphaValue);
-  texture(b);
-  vertex(- compensateX, -size, -compensateZ, 0, 0);
-  vertex(compensateX, -size, compensateZ, 200, 0);
-  vertex(compensateX, size, compensateZ, 200, 200);
-  vertex(-compensateX, size, - compensateZ, 0, 200);
-  endShape();
+    beginShape();
+    tint(192, alphaValue);
+    texture(b);
+    vertex(- compensateX, -size, -compensateZ, 0, 0);
+    vertex(compensateX, -size, compensateZ, 200, 0);
+    vertex(compensateX, size, compensateZ, 200, 200);
+    vertex(-compensateX, size, - compensateZ, 0, 200);
+    endShape();
 
-  noTint();   
-  beginShape();
-  texture(body);
-  vertex(- compensateX, -size, -compensateZ, 0, 0);
-  vertex(compensateX, -size, compensateZ, 200, 0);
-  vertex(compensateX, size, compensateZ, 200, 200);
-  vertex(-compensateX, size, - compensateZ, 0, 200);
-  endShape();
-}
+    noTint();   
+    beginShape();
+    texture(body);
+    vertex(- compensateX, -size, -compensateZ, 0, 0);
+    vertex(compensateX, -size, compensateZ, 200, 0);
+    vertex(compensateX, size, compensateZ, 200, 200);
+    vertex(-compensateX, size, - compensateZ, 0, 200);
+    endShape();
+  }
 
 }
