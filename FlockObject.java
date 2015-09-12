@@ -32,6 +32,10 @@ public abstract class FlockObject {
   public void setPosition(PVector position) {
     this.position = position;
   }
+  
+  public PVector getPosition() {
+    return position;
+  }
 
   public void receiveSignal(PVector otherPosition, float pulseValue) {
     if (position.dist(otherPosition) < maximumSignalDistance) {
@@ -39,17 +43,11 @@ public abstract class FlockObject {
     }
   }
 
-  public PVector getPosition() {
-    return position;
-  }
+  public abstract void tick();
+
 
   abstract void drawBody();
 
-  public void tick() {
-    drawBody();
-    calculateNextPosition();
-  }
-  
   abstract void calculateNextPosition();
 
 }

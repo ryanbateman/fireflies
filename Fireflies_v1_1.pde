@@ -49,7 +49,8 @@ int flockSize = 150;
 
   private void drawAxes() {  
     if (drawAxis) {    
-      stroke(75);
+      colorMode(RGB, 1.0);
+      stroke(0.8f, 0.8f, 0.8f, 0.2f);
       line(0, 0, height , 0);
       line(0, height, 0, 0, height, height);
       line(height, height, 0, height, height, height);
@@ -62,6 +63,7 @@ int flockSize = 150;
         line(i, width, 0, i, width, width);
       }
       stroke(0);
+      colorMode(RGB, 255);
     }
   }
 
@@ -91,7 +93,6 @@ int flockSize = 150;
 }
 
 private void tearDownEnvironment() {
-
   pgl.beginPGL();
   gl.depthMask(true);
   gl.blendFunc(PGL.SRC_ALPHA, PGL.ONE_MINUS_SRC_ALPHA);
@@ -135,12 +136,6 @@ private class FireflyFlockObject extends FlockObject {
     
     PVector position = new PVector(int(noise(flockxoff) * width),  int(noise(flockyoff) * width) , int(noise(flockzoff) * width));
     setPosition(position);
-  }
-
-  public void receiveSignal(PVector otherPosition, float pulseValue) {
-    if (position.dist(otherPosition) < maximumSignalDistance) {
-      alphaDifference = alphaDifference + (resettingStrength * sin(alphaDifference - pulseValue));
-    }
   }
 
   public void tick() {
