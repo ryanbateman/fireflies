@@ -51,7 +51,7 @@ int flockSize = 150;
     frameRate(45);
 
     for (int p=0; p < theFlock.length; p++) {
-      theFlock[p] = new FlockObject(random(0.01f, 1), str(p)); 
+      theFlock[p] = new FlockObject(random(0.01f, 1)); 
     }
   }
 
@@ -161,12 +161,9 @@ private class FlockObject {
   private float resettingStrength; 
 
   private boolean isGlowing;
-
-  private String name;
   
-  public FlockObject(float offset, String name) {
+  public FlockObject(float offset) {
     resettingStrength = 0.12f;
-    this.name = name;
     size = PApplet.parseInt(random(5, 55));
     flockxoff = random(offset*.4f, offset * 5.8f);
     flockyoff = random(offset*.4f, offset * 1.8f);
