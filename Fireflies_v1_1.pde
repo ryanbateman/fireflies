@@ -1,14 +1,13 @@
 import processing.opengl.*;
-import javax.media.opengl.*;
+import com.jogamp.opengl.*;
 
 PGraphicsOpenGL pgl;
 PGL gl;
-int[] values;
 float angle = 0;
 boolean paused = true;
-int zoomDistance = -10;
+int zoomDistance = -20;
 boolean stopMovement = true;
-int maximumSignalDistance = 200;
+int maximumSignalDistance = 150;
 boolean drawAxis = true;
 boolean drawLines = false;
 FlockObject[] theFlock;
@@ -23,7 +22,6 @@ int flockSize = 150;
   */
   void setup() {
     size(700, 700, OPENGL);
-    values = new int[width];
     theFlock = new FlockObject[flockSize];
     b = loadImage("blur2.png");
     c = loadImage("blur4.png");

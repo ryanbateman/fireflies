@@ -32,7 +32,7 @@ public abstract class FlockObject {
   public void setPosition(PVector position) {
     this.position = position;
   }
-  
+
   public PVector getPosition() {
     return position;
   }
@@ -44,7 +44,6 @@ public abstract class FlockObject {
   }
 
   public abstract void tick();
-
 
   abstract void drawBody();
 
