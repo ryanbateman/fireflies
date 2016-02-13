@@ -7,7 +7,6 @@ float angle = 0;
 boolean paused = true;
 int zoomDistance = -20;
 boolean stopMovement = true;
-int maximumSignalDistance = 150;
 boolean drawAxis = true;
 boolean drawLines = false;
 FlockObject[] theFlock;
